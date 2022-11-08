@@ -92,7 +92,7 @@ int main(int argc, char * argv[]) {
     fprintf(stderr, "[+] Initializing MD buffer...\n");
     MDBuff X = { 0 };
 	
-	/**
+     /**
      * Step 4 - message processing
      */
 	 
