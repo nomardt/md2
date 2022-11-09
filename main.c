@@ -95,4 +95,47 @@ int main(int argc, char * argv[]) {
      /**
      * Step 4 - message processing
      */
-	 
+    fprintf(stderr, "[+] Processing input message...\n");
+    for (size_t i = 0; i < file_len / MD2_MSG_BLOCK_SIZE; i++) {
+        for (size_t j = 0; j < MD2_MSG_BLOCK_SIZE; j++) {
+            X[16 + j] = msg[MD2_MSG_BLOCK_SIZE * i + j];
+            X[32 + j] = X[16 + j] ^ X[j];
+        }
+
+        Byte t = 0;
+
+        for (size_t j = 0; j < 18; j++) {
+            for (size_t k = 0; k < MD2_MD_BUF_SIZE; k++) {
+                X[k] = X[k] ^ S[t];
+                t = X[k];
+            }
+            t = t + j % 256;
+        }
+    }
+
+    free(msg);
+
+    fprintf(stderr, "\n[*] Hash calculation complete\n");
+    fprintf(stderr, "[*] File: '%s'\n", argv[1]);
+    fprintf(stderr, "[*] Hash: ");
+    for (size_t i = 0; i < 16; i++) {
+        fprintf(stderr, "%02" PRIX8 " ", X[i]);
+    }
+    fputs("\n", stderr);
+
+    return 0;
+}
+
+size_t pad_file(M const buf, long int fsize) {
+    const size_t bytes_to_pad = 16 - fsize % 16;
+
+    for (size_t pad_byte = 0; pad_byte < bytes_to_pad; pad_byte++) {
+        buf[fsize + pad_byte] = bytes_to_pad;
+    }
+
+    return bytes_to_pad;
+}
+
+size_t append_checksum(M buf, long int fsize) {
+	#TODO
+}
