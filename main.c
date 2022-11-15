@@ -137,5 +137,23 @@ size_t pad_file(M const buf, long int fsize) {
 }
 
 size_t append_checksum(M buf, long int fsize) {
-	#TODO
+    Checksum C = { 0 };
+    Byte c = 0, L = 0;
+
+    for (size_t i = 0; i < fsize / MD2_MSG_BLOCK_SIZE; i++) {
+        for (size_t j = 0; j < 16; j++) {
+            c = buf[MD2_MSG_BLOCK_SIZE * i + j];
+            C[j] = S[c ^ L] ^ C[j];
+            L = C[j];
+        }
+    }
+
+    if (!(buf = realloc(buf, fsize + MD2_CHECKSUM_SIZE))) {
+        free(buf);
+        err("(%s)\tUnable to reallocate buffer\n", __func__);
+    }
+
+    memcpy(buf + fsize, C, MD2_CHECKSUM_SIZE);
+
+    return fsize + MD2_CHECKSUM_SIZE;
 }
